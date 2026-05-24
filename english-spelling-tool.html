@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English Spelling Tool</title>
+    <style>
+        :root {
+            color-scheme: light;
+            --primary: #2563eb;
+            --accent: #f59e0b;
+            --success: #10b981;
+            --light-bg: #f3f4f6;
+            --border: #e5e7eb;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: white;
+            padding: 40px 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.1em;
+            color: #666;
+        }
+
+        .main-card {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 30px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.1em;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .control-item {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .control-item label {
+            font-size: 0.9em;
+            margin-bottom: 8px;
+        }
+
+        select, input[type="range"] {
+            width: 100%;
+            padding: 8px 12px;
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+
+        .speed-display {
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            flex: 1;
+            min-width: 140px;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #d97706;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .word-display {
+            background: var(--light-bg);
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 30px;
+            border: 2px dashed var(--border);
+        }
+
+        .word-display h2 {
+            color: var(--primary);
+            font-size: 2.5em;
+            word-break: break-all;
+            margin-bottom: 10px;
+        }
+
+        .word-status {
+            color: #999;
+            font-size: 0.95em;
+        }
+
+        .spelling-section {
+            margin-top: 30px;
+        }
+
+        .spelling-section h3 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .letters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .letter-box {
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 1.8em;
+            color: var(--primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .letter-box:hover {
+            border-color: var(--primary);
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
+
+        .letter-box:active {
+            transform: translateY(-1px);
+        }
+
+        .letter-name {
+            font-size: 0.65em;
+            color: #999;
+            margin-top: 5px;
+            font-weight: 500;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #999;
+            padding: 40px 20px;
+        }
+
+        .empty-state p {
+            font-size: 1.1em;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2em;
+            }
+
+            .main-card {
+                padding: 20px;
+            }
+
+            .word-display h2 {
+                font-size: 2em;
+            }
+
+            .letters-grid {
+                grid-template-columns: repeat(auto-fit, minmax(45px, 1fr));
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            button {
+                min-width: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔤 English Spelling Tool</h1>
+            <p>Listen to words spelled letter by letter</p>
+        </header>
+
+        <div class="main-card">
+            <div class="input-group">
+                <label for="wordInput">Enter a word in English:</label>
+                <input
+                    type="text"
+                    id="wordInput"
+                    placeholder="Type any English word..."
+                    autocomplete="off"
+                >
+            </div>
+
+            <div class="controls">
+                <div class="control-item">
+                    <label for="speedControl">Speed:</label>
+                    <input type="range" id="speedControl" min="0.5" max="2" step="0.1" value="1">
+                    <div class="speed-display"><span id="speedValue">1.0</span>x</div>
+                </div>
+                <div class="control-item">
+                    <label for="voiceSelect">Voice:</label>
+                    <select id="voiceSelect"></select>
+                </div>
+            </div>
+
+            <div id="contentArea"></div>
+        </div>
+    </div>
+
+    <script>
+        const letterNames = {
+            'a': 'ay', 'b': 'bee', 'c': 'see', 'd': 'dee', 'e': 'ee',
+            'f': 'ef', 'g': 'gee', 'h': 'aitch', 'i': 'eye', 'j': 'jay',
+            'k': 'kay', 'l': 'el', 'm': 'em', 'n': 'en', 'o': 'oh',
+            'p': 'pee', 'q': 'cue', 'r': 'ar', 's': 'ess', 't': 'tee',
+            'u': 'you', 'v': 'vee', 'w': 'double-you', 'x': 'ex', 'y': 'why',
+            'z': 'zee', ' ': 'space'
+        };
+
+        let currentWord = '';
+
+        // Initialize
+        function init() {
+            populateVoices();
+            setupEventListeners();
+        }
+
+        // Populate voices dropdown
+        function populateVoices() {
+            const voices = window.speechSynthesis.getVoices();
+            const select = document.getElementById('voiceSelect');
+            select.innerHTML = '';
+
+            voices.forEach((voice, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = `${voice.name} (${voice.lang})`;
+                if (voice.default) option.selected = true;
+                select.appendChild(option);
+            });
+
+            window.speechSynthesis.onvoiceschanged = populateVoices;
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            const input = document.getElementById('wordInput');
+            input.addEventListener('input', (e) => {
+                currentWord = e.target.value.toLowerCase();
+                renderContent();
+            });
+
+            document.getElementById('speedControl').addEventListener('input', (e) => {
+                document.getElementById('speedValue').textContent = e.target.value;
+            });
+        }
+
+        // Render content
+        function renderContent() {
+            const contentArea = document.getElementById('contentArea');
+
+            if (!currentWord.trim()) {
+                contentArea.innerHTML = `
+                    <div class="empty-state">
+                        <p>✍️ Type a word to get started!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const cleanWord = currentWord.replace(/[^a-z\s]/g, '');
+            const letters = cleanWord.split('');
+
+            let html = `
+                <div class="word-display">
+                    <h2>"${cleanWord}"</h2>
+                    <div class="word-status">${letters.length} letters</div>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn-primary" onclick="speakWord()">
+                        🔊 Say Word
+                    </button>
+                    <button class="btn-secondary" onclick="spellWord()">
+                        📝 Spell Word
+                    </button>
+                </div>
+
+                <div class="spelling-section">
+                    <h3>Letters:</h3>
+                    <div class="letters-grid">
+            `;
+
+            letters.forEach((letter, index) => {
+                const letterName = letterNames[letter] || letter;
+                html += `
+                    <div class="letter-box" onclick="speakLetter('${letter}', ${index})">
+                        ${letter === ' ' ? '␣' : letter.toUpperCase()}
+                        <div class="letter-name">${letterName}</div>
+                    </div>
+                `;
+            });
+
+            html += `
+                    </div>
+                </div>
+            `;
+
+            contentArea.innerHTML = html;
+        }
+
+        // Speak the complete word
+        function speakWord() {
+            const cleanWord = currentWord.replace(/[^a-z\s]/g, '');
+            window.speechSynthesis.cancel();
+
+            const utterance = new SpeechSynthesisUtterance(cleanWord);
+            utterance.rate = parseFloat(document.getElementById('speedControl').value);
+
+            const voiceSelect = document.getElementById('voiceSelect').value;
+            if (voiceSelect) {
+                const voices = window.speechSynthesis.getVoices();
+                utterance.voice = voices[voiceSelect];
+            }
+
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // Spell the word letter by letter
+        function spellWord() {
+            const cleanWord = currentWord.replace(/[^a-z\s]/g, '');
+            const letters = cleanWord.split('');
+            let index = 0;
+
+            function speakNextLetter() {
+                if (index < letters.length) {
+                    const letter = letters[index];
+                    const letterName = letterNames[letter] || letter;
+
+                    window.speechSynthesis.cancel();
+                    const utterance = new SpeechSynthesisUtterance(letterName);
+                    utterance.rate = parseFloat(document.getElementById('speedControl').value);
+
+                    const voiceSelect = document.getElementById('voiceSelect').value;
+                    if (voiceSelect) {
+                        const voices = window.speechSynthesis.getVoices();
+                        utterance.voice = voices[voiceSelect];
+                    }
+
+                    // Highlight current letter
+                    const boxes = document.querySelectorAll('.letter-box');
+                    boxes.forEach(box => box.style.background = 'white');
+                    if (boxes[index]) {
+                        boxes[index].style.background = '#dbeafe';
+                        boxes[index].style.borderColor = '#2563eb';
+                    }
+
+                    utterance.onend = () => {
+                        index++;
+                        setTimeout(speakNextLetter, 600);
+                    };
+
+                    window.speechSynthesis.speak(utterance);
+                } else {
+                    const boxes = document.querySelectorAll('.letter-box');
+                    boxes.forEach(box => box.style.background = 'white');
+                }
+            }
+
+            speakNextLetter();
+        }
+
+        // Speak individual letter
+        function speakLetter(letter, index) {
+            const letterName = letterNames[letter] || letter;
+            window.speechSynthesis.cancel();
+
+            const utterance = new SpeechSynthesisUtterance(letterName);
+            utterance.rate = parseFloat(document.getElementById('speedControl').value);
+
+            const voiceSelect = document.getElementById('voiceSelect').value;
+            if (voiceSelect) {
+                const voices = window.speechSynthesis.getVoices();
+                utterance.voice = voices[voiceSelect];
+            }
+
+            // Highlight letter
+            const boxes = document.querySelectorAll('.letter-box');
+            boxes.forEach(box => box.style.background = 'white');
+            if (boxes[index]) {
+                boxes[index].style.background = '#dbeafe';
+            }
+
+            utterance.onend = () => {
+                if (boxes[index]) {
+                    boxes[index].style.background = 'white';
+                }
+            };
+
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // Initialize on load
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>
