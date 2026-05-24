@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wordlist - Pronunciation Practice</title>
+    <style>
+        :root {
+            color-scheme: light;
+            --primary: #0f3a7d;
+            --accent: #f4c430;
+            --light-bg: #f5f5f5;
+            --border: #ddd;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f9f9f9;
+            color: #333;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, #1a4fa0 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.95;
+        }
+
+        .controls {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        label {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        select, input[type="range"] {
+            padding: 8px 12px;
+            border: 2px solid var(--border);
+            border-radius: 5px;
+            font-size: 1em;
+            font-family: inherit;
+        }
+
+        input[type="range"] {
+            width: 150px;
+        }
+
+        button.play-all {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 1em;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        button.play-all:hover {
+            background: #0a2a5f;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px 15px;
+            border: 2px solid var(--border);
+            border-radius: 5px;
+            font-size: 1em;
+        }
+
+        .words-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .word-card {
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .word-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(15, 58, 125, 0.15);
+            transform: translateY(-3px);
+        }
+
+        .word-card.hidden {
+            display: none;
+        }
+
+        .word-text {
+            font-size: 1.6em;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        .word-grammar {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 15px;
+            font-style: italic;
+        }
+
+        .pronunciation-btn {
+            background: var(--accent);
+            color: var(--primary);
+            border: none;
+            padding: 12px 16px;
+            border-radius: 5px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 1em;
+            width: 100%;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .pronunciation-btn:hover {
+            background: #e6b800;
+            transform: scale(1.05);
+        }
+
+        .pronunciation-btn:active {
+            transform: scale(0.98);
+        }
+
+        .pronunciation-btn.speaking {
+            background: #d4a000;
+        }
+
+        .speaker-icon {
+            font-size: 1.2em;
+        }
+
+        .stats {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            color: #666;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .speed-display {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .words-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-box input {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📚 WORDLIST - Pronunciation Practice</h1>
+            <p>Cambridge Academic Corpus • Click the speaker icon to hear the pronunciation</p>
+        </header>
+
+        <div class="controls">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="🔍 Search words...">
+            </div>
+            <div class="control-group">
+                <label for="speedControl">Speed:</label>
+                <input type="range" id="speedControl" min="0.5" max="2" step="0.1" value="1">
+                <span class="speed-display"><span id="speedValue">1.0</span>x</span>
+            </div>
+            <div class="control-group">
+                <select id="voiceSelect">
+                    <option value="">Select Voice</option>
+                </select>
+            </div>
+            <button class="play-all">▶ Play All</button>
+        </div>
+
+        <div class="words-grid" id="wordsGrid"></div>
+
+        <div class="stats">
+            <p>Showing <span id="visibleCount">0</span> of <span id="totalCount">0</span> words</p>
+        </div>
+    </div>
+
+    <script>
+        const words = [
+            { text: 'abandon', grammar: '(v)', category: '⭐' },
+            { text: 'abuse', grammar: '(n)', category: '⭐' },
+            { text: 'abuse', grammar: '(v)', category: '⭐' },
+            { text: 'analyze', grammar: '(v)', category: '⭐' },
+            { text: 'communicate', grammar: '(v)', category: '⭐' },
+            { text: 'conditions', grammar: '(n pl)', category: '' },
+            { text: 'connect', grammar: '(v)', category: '⭐' },
+            { text: 'critically', grammar: '(adv)', category: '⭐' },
+            { text: 'cruel', grammar: '(adj)', category: '' },
+            { text: 'damage', grammar: '(v)', category: '⭐' },
+            { text: 'debate', grammar: '(v)', category: '⭐' },
+            { text: 'depend on', grammar: '(phr v)', category: '' },
+            { text: 'endangered', grammar: '(adj)', category: '' },
+            { text: 'environment', grammar: '(n)', category: '⭐' },
+            { text: 'extinct', grammar: '(adj)', category: '' },
+            { text: 'habitat', grammar: '(n)', category: '⭐' },
+            { text: 'illegal', grammar: '(adj)', category: '⭐' },
+            { text: 'involve', grammar: '(v)', category: '⭐' },
+            { text: 'issue', grammar: '(n)', category: '⭐' },
+            { text: 'loss', grammar: '(n)', category: '⭐' },
+            { text: 'poacher', grammar: '(n)', category: '' },
+            { text: 'protect', grammar: '(v)', category: '⭐' },
+            { text: 'species', grammar: '(n)', category: '⭐' },
+            { text: 'suffer', grammar: '(v)', category: '⭐' },
+            { text: 'support', grammar: '(v)', category: '⭐' },
+            { text: 'survive', grammar: '(v)', category: '⭐' },
+            { text: 'threat', grammar: '(n)', category: '⭐' },
+            { text: 'welfare', grammar: '(n)', category: '' }
+        ];
+
+        let utterances = [];
+
+        // Initialize
+        function init() {
+            renderWords(words);
+            populateVoices();
+            setupEventListeners();
+            updateStats();
+        }
+
+        // Render words
+        function renderWords(wordsToRender) {
+            const grid = document.getElementById('wordsGrid');
+            grid.innerHTML = '';
+
+            wordsToRender.forEach((word, index) => {
+                const card = document.createElement('div');
+                card.className = 'word-card';
+                card.innerHTML = `
+                    <div class="word-text">${word.text}</div>
+                    <div class="word-grammar">${word.grammar} ${word.category}</div>
+                    <button class="pronunciation-btn" data-word="${word.text}" data-index="${index}">
+                        <span class="speaker-icon">🔊</span>
+                        Pronunciation
+                    </button>
+                `;
+                grid.appendChild(card);
+
+                card.querySelector('.pronunciation-btn').addEventListener('click', () => {
+                    speak(word.text, index);
+                });
+            });
+        }
+
+        // Text to Speech
+        function speak(text, buttonIndex) {
+            // Cancel previous speech
+            window.speechSynthesis.cancel();
+
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = parseFloat(document.getElementById('speedControl').value);
+
+            const voiceSelect = document.getElementById('voiceSelect').value;
+            if (voiceSelect) {
+                const voices = window.speechSynthesis.getVoices();
+                utterance.voice = voices[voiceSelect];
+            }
+
+            const btn = document.querySelector(`[data-index="${buttonIndex}"]`);
+            if (btn) {
+                btn.classList.add('speaking');
+                utterance.onend = () => btn.classList.remove('speaking');
+            }
+
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // Populate voices dropdown
+        function populateVoices() {
+            const voices = window.speechSynthesis.getVoices();
+            const select = document.getElementById('voiceSelect');
+
+            voices.forEach((voice, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = `${voice.name} (${voice.lang})`;
+                if (voice.default) option.selected = true;
+                select.appendChild(option);
+            });
+        }
+
+        // Search functionality
+        function setupEventListeners() {
+            document.getElementById('searchInput').addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase();
+                const filtered = words.filter(w =>
+                    w.text.toLowerCase().includes(query) ||
+                    w.grammar.toLowerCase().includes(query)
+                );
+                renderWords(filtered);
+                updateStats();
+            });
+
+            document.getElementById('speedControl').addEventListener('input', (e) => {
+                document.getElementById('speedValue').textContent = e.target.value;
+            });
+
+            document.querySelector('.play-all').addEventListener('click', () => {
+                playAllWords();
+            });
+
+            // Ensure voices are loaded
+            window.speechSynthesis.onvoiceschanged = populateVoices;
+        }
+
+        // Play all words
+        function playAllWords() {
+            let index = 0;
+            const visibleWords = document.querySelectorAll('.word-card:not(.hidden)');
+
+            function playNext() {
+                if (index < visibleWords.length) {
+                    const btn = visibleWords[index].querySelector('.pronunciation-btn');
+                    const word = btn.getAttribute('data-word');
+                    const btnIndex = btn.getAttribute('data-index');
+
+                    const utterance = new SpeechSynthesisUtterance(word);
+                    utterance.rate = parseFloat(document.getElementById('speedControl').value);
+
+                    const voiceSelect = document.getElementById('voiceSelect').value;
+                    if (voiceSelect) {
+                        const voices = window.speechSynthesis.getVoices();
+                        utterance.voice = voices[voiceSelect];
+                    }
+
+                    btn.classList.add('speaking');
+                    utterance.onend = () => {
+                        btn.classList.remove('speaking');
+                        index++;
+                        setTimeout(playNext, 500);
+                    };
+
+                    window.speechSynthesis.speak(utterance);
+                }
+            }
+
+            playNext();
+        }
+
+        // Update stats
+        function updateStats() {
+            const visible = document.querySelectorAll('.word-card').length;
+            document.getElementById('visibleCount').textContent = visible;
+            document.getElementById('totalCount').textContent = words.length;
+        }
+
+        // Initialize on load
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>
